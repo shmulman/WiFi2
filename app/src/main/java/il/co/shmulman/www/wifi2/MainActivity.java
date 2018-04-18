@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,7 +26,10 @@ public class MainActivity extends AppCompatActivity {
     Button connect_button;
     Button discover_button;
     Button disconnect_button;
+
     WifiManager wifiManager;
+    WifiInfo connection;
+    String display;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,18 +44,27 @@ public class MainActivity extends AppCompatActivity {
         mCapsenseValue = findViewById(R.id.capsense_value);
 
 
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
 
         start_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                connection = wifiManager.getConnectionInfo();
+
                 mCapsenseValue.append("Start WiFi\n");
                 if (wifiManager.isWifiEnabled()){
                     wifiManager.setWifiEnabled(true);
+                    mCapsenseValue.append("WiFi enabled\n");
                 }
                 else if (!wifiManager.isWifiEnabled()){
                     wifiManager.setWifiEnabled(false);
+                    mCapsenseValue.append("WiFi disabled\n");
                 }
+                display += "SSID : " + connection.getSSID() + "\n" +
+                        "RSSi : " + connection.getRssi() + "\n" +
+                        "Mac Address : " + connection.getMacAddress();
+                mCapsenseValue.append(display + "\n");
             }
         });
 
@@ -84,13 +97,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
         MyBroadCastReceiver myBroadCastReceiver = new MyBroadCastReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         // Register the broadcast receiver
-        registerReceiver(myBroadCastReceiver,new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        registerReceiver(myBroadCastReceiver,intentFilter);
     }
 
-    class MyBroadCastReceiver extends BroadcastReceiver{
+    public class MyBroadCastReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent){
+            mCapsenseValue.append("BroadCast is initiated\n");
             StringBuffer stringBuffer = new StringBuffer();
             List<ScanResult> list = wifiManager.getScanResults();
             for (ScanResult scanResult : list){
