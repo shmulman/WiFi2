@@ -9,11 +9,17 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,7 +35,8 @@ public class MainActivity extends AppCompatActivity {
 
     WifiManager wifiManager;
     WifiInfo connection;
-    String display;
+    String display = "";
+    BroadcastReceiver myBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         discover_button = findViewById(R.id.discoverSvc_button);
         disconnect_button = findViewById(R.id.disconnect_button);
         mCapsenseValue = findViewById(R.id.capsense_value);
+        mCapsenseValue.setMovementMethod(new ScrollingMovementMethod());
 
 
 
@@ -52,18 +60,39 @@ public class MainActivity extends AppCompatActivity {
                 wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
                 connection = wifiManager.getConnectionInfo();
 
-                mCapsenseValue.append("Start WiFi\n");
+                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT+3:00"));
+                Date currentLocalTime = cal.getTime();
+                DateFormat date = new SimpleDateFormat("HH:mm:ss");
+                date.setTimeZone(TimeZone.getTimeZone("GMT+3:00"));
+                String localTime = date.format(currentLocalTime);
+                mCapsenseValue.append("onClick is initiated: "+ localTime +"\n");
+
+
+                //StringBuffer stringBuffer = new StringBuffer();
+
+                List<ScanResult> list;
+                list = wifiManager.getScanResults();
+                for(int i = 0; i < list.size(); i++){
+                    mCapsenseValue.append("SSID from list:" + list.get(i).SSID);
+                }
+
+                //wifiList = wifi.getScanResults();
+            /*for (ScanResult scanResult : list){
+                stringBuffer.append(scanResult);
+                mCapsenseValue.append("SSID from Broadcast:" + scanResult.SSID);
+            }*/
+
+
+                //mCapsenseValue.append("Start WiFi\n");
                 if (wifiManager.isWifiEnabled()){
                     wifiManager.setWifiEnabled(true);
-                    mCapsenseValue.append("WiFi enabled\n");
                 }
                 else if (!wifiManager.isWifiEnabled()){
                     wifiManager.setWifiEnabled(false);
-                    mCapsenseValue.append("WiFi disabled\n");
                 }
-                display += "SSID : " + connection.getSSID() + "\n" +
-                        "RSSi : " + connection.getRssi() + "\n" +
-                        "Mac Address : " + connection.getMacAddress();
+
+                display = "SSID : " + connection.getSSID() + "\n" +
+                          "RSSi : " + connection.getRssi() + "\n";
                 mCapsenseValue.append(display + "\n");
             }
         });
@@ -96,23 +125,40 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        MyBroadCastReceiver myBroadCastReceiver = new MyBroadCastReceiver();
+
+        /*MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        // Register the broadcast receiver
-        registerReceiver(myBroadCastReceiver,intentFilter);
+        registerReceiver(myBroadcastReceiver,intentFilter);*/
     }
 
-    public class MyBroadCastReceiver extends BroadcastReceiver{
+   /*public class MyBroadcastReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent){
-            mCapsenseValue.append("BroadCast is initiated\n");
+
+
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT+3:00"));
+            Date currentLocalTime = cal.getTime();
+            DateFormat date = new SimpleDateFormat("HH:mm:ss");
+            date.setTimeZone(TimeZone.getTimeZone("GMT+3:00"));
+            String localTime = date.format(currentLocalTime);
+            mCapsenseValue.append("BroadCast is initiated: "+ localTime +"\n");
+
+
             StringBuffer stringBuffer = new StringBuffer();
-            List<ScanResult> list = wifiManager.getScanResults();
-            for (ScanResult scanResult : list){
-                stringBuffer.append(scanResult);
+            List<ScanResult> list;
+
+            list = wifiManager.getScanResults();
+            for(int i = 0; i < list.size(); i++){
+                mCapsenseValue.append("SSID from Broadcast:" + list.get(i).SSID);
             }
+
+            //wifiList = wifi.getScanResults();
+            *//*for (ScanResult scanResult : list){
+                stringBuffer.append(scanResult);
+                mCapsenseValue.append("SSID from Broadcast:" + scanResult.SSID);
+            }*//*
             mCapsenseValue.append(stringBuffer);
         }
-    }
+    }*/
 }

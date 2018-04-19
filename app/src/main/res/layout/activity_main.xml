@@ -57,9 +57,12 @@
 
     <TextView
         android:id="@+id/capsense_value"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="6dp"
+        android:maxLines = "50"
+        android:scrollbars = "vertical"
+        android:fadeScrollbars="false"
         />
 
 </LinearLayout>
