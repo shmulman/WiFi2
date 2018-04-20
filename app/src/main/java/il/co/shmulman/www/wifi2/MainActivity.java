@@ -1,9 +1,11 @@
 package il.co.shmulman.www.wifi2;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -36,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
     WifiManager wifiManager;
     WifiInfo connection;
     String display = "";
-    BroadcastReceiver myBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +51,6 @@ public class MainActivity extends AppCompatActivity {
         disconnect_button = findViewById(R.id.disconnect_button);
         mCapsenseValue = findViewById(R.id.capsense_value);
         mCapsenseValue.setMovementMethod(new ScrollingMovementMethod());
-
-
 
         start_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,22 +67,16 @@ public class MainActivity extends AppCompatActivity {
                 mCapsenseValue.append("onClick is initiated: "+ localTime +"\n");
 
 
-                //StringBuffer stringBuffer = new StringBuffer();
-
                 List<ScanResult> list;
+                // THE ERROR: wifiManager will return zero if inside the
+                // Settings -> App -> My App -> Permission - Location is not allowed.
                 list = wifiManager.getScanResults();
                 for(int i = 0; i < list.size(); i++){
-                    mCapsenseValue.append("SSID from list:" + list.get(i).SSID);
+                    mCapsenseValue.append("SSID from list:" + list.get(i).SSID + "\n");
                 }
 
-                //wifiList = wifi.getScanResults();
-            /*for (ScanResult scanResult : list){
-                stringBuffer.append(scanResult);
-                mCapsenseValue.append("SSID from Broadcast:" + scanResult.SSID);
-            }*/
+                mCapsenseValue.append("wifiManager list size: "+ list.size() +"\n");
 
-
-                //mCapsenseValue.append("Start WiFi\n");
                 if (wifiManager.isWifiEnabled()){
                     wifiManager.setWifiEnabled(true);
                 }
@@ -91,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
                     wifiManager.setWifiEnabled(false);
                 }
 
-                display = "SSID : " + connection.getSSID() + "\n" +
-                          "RSSi : " + connection.getRssi() + "\n";
+                display = "connection SSID : " + connection.getSSID() + "\n" +
+                          "connection RSSi : " + connection.getRssi() + "\n";
                 mCapsenseValue.append(display + "\n");
             }
         });
@@ -125,40 +118,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        /*MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        registerReceiver(myBroadcastReceiver,intentFilter);*/
     }
-
-   /*public class MyBroadcastReceiver extends BroadcastReceiver{
-        @Override
-        public void onReceive(Context context, Intent intent){
-
-
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT+3:00"));
-            Date currentLocalTime = cal.getTime();
-            DateFormat date = new SimpleDateFormat("HH:mm:ss");
-            date.setTimeZone(TimeZone.getTimeZone("GMT+3:00"));
-            String localTime = date.format(currentLocalTime);
-            mCapsenseValue.append("BroadCast is initiated: "+ localTime +"\n");
-
-
-            StringBuffer stringBuffer = new StringBuffer();
-            List<ScanResult> list;
-
-            list = wifiManager.getScanResults();
-            for(int i = 0; i < list.size(); i++){
-                mCapsenseValue.append("SSID from Broadcast:" + list.get(i).SSID);
-            }
-
-            //wifiList = wifi.getScanResults();
-            *//*for (ScanResult scanResult : list){
-                stringBuffer.append(scanResult);
-                mCapsenseValue.append("SSID from Broadcast:" + scanResult.SSID);
-            }*//*
-            mCapsenseValue.append(stringBuffer);
-        }
-    }*/
 }
